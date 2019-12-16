@@ -1,15 +1,16 @@
 ## MILESTONES
 ### v0.5
 v use git
-- parse toc
-- bookmarks (set, navigate to)
+v parametrize toc/content paths as per specification
+- get epub metadata and rename cache dir accordingly
 - remember last position
-- fix toc links
+- working toc links
+- bookmarks (set, navigate to)
 
 ### v0.6
 - try out different examples of epub
-- parametrize toc/content paths as per specification
 - collapsible toc
+- metadata view
 
 ### v0.x
 - bugfixing: char encoding
@@ -19,6 +20,8 @@ v use git
 - support media (embedded images)
 
 ### v0.xx
+- understand xml namespaces
+- support multi-package containers
 - automate tests opening a lot of different .epubs without crashes
 - check state of specification support:
 	- mimetype(s)
