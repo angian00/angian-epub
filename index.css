@@ -1,0 +1,27 @@
+h1 {
+	text-align: center;
+	width: 100%;
+}
+
+#metadataContainer {
+	/* height: 10%; */
+	display: none;
+}
+
+#bodyContainer {
+	display: flex;
+}
+
+#tocContainer {
+	/* width: 20%; */
+	max-width: 30%;
+	border: 1px solid darkGrey;
+	padding: 20px;
+}
+
+#textContainer {
+	flex-grow: 1;
+	/* width: 80%; */
+	padding: 20px;
+
+}

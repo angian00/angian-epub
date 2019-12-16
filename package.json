@@ -1,0 +1,20 @@
+{
+  "name": "angian-epub",
+  "version": "0.2.0",
+  "description": "An Electron-based epub reader",
+  "main": "app.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "angian00",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^7.1.4",
+    "extract-zip": "^1.6.7",
+    "jsdom": "^15.2.1",
+    "xml2json": "^0.11.2"
+  },
+  "devDependencies": {
+    "electron-rebuild": "^1.8.8"
+  }
+}
