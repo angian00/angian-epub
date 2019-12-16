@@ -1,12 +1,12 @@
-- viewer di documenti epub
-- basato su Electron, quindi su HTML + Node
-
 ## MILESTONES
 ### v0.5
-- use git
-- fix toc links
+v use git
+- parse toc
 - bookmarks (set, navigate to)
 - remember last position
+- fix toc links
+
+### v0.6
 - try out different examples of epub
 - parametrize toc/content paths as per specification
 - collapsible toc
