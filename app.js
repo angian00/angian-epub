@@ -107,6 +107,9 @@ function parseMetadata(contentFile, callback) {
 			let value = origMetadata[tag];
 			//console.log("tag: " + tag + "; value type: " + (typeof value));
 
+			if (tag.startsWith("dc:"))
+				tag = tag.substring(3,);
+
 			if (tag == "dc:date") {
 				for (let subItem of value) {
 					let tagNew = tag + "_" + subItem["opf:event"];

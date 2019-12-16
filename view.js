@@ -13,6 +13,9 @@ ipcRenderer.on('update-metadata', function(event, metadata) {
 		dd.appendChild(document.createTextNode(metadata[k]));
 		list.appendChild(dd);
 	}
+
+	if (metadata.title && (metadata.title != ""))
+		document.title = metadata.title;
 });
 
 
