@@ -13,11 +13,11 @@ v parametrize toc/content paths as per specification
 - metadata view
 
 ### v0.x
-- bugfixing: char encoding
 - scrubbing controls; hotkeys
 - check available epub readers for ideas
 - finalize layout
 - support media (embedded images)
+- "library" view
 
 ### v0.xx
 - understand xml namespaces

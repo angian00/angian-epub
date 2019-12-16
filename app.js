@@ -112,7 +112,6 @@ function parseEpub(epubDir, win) {
 			
 			let epubItems = {};
 			for (let item of json.package.manifest.item) {
-				//console.log(item);
 				//href, id, media-type
 				epubItems[item.id] = item;
 			}
@@ -227,15 +226,10 @@ function parseToc(tocFile, callback) {
 
 function parseText(textFile, callback) {
 	fs.readFile(textFile, function(err, data) {
-		console.log("----------raw text:");
-		console.log(data.toString());
-
 		const xmlDoc = new jsdom.JSDOM(data.toString());
 
 		let htmlText = xmlDoc.window.document.querySelector("body").innerHTML;
-		console.log("----------htmlText: ");
-		console.log(htmlText);
-		
+
 		callback(htmlText);
 	});
 }
