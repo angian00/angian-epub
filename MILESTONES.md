@@ -1,16 +1,18 @@
 ## MILESTONES
 ### v0.5
-v use git
-v parametrize toc/content paths as per specification
 - get epub metadata and rename cache dir accordingly
 - remember last position
 - working toc links
 - bookmarks (set, navigate to)
+- changelog
 
 ### v0.6
 - try out different examples of epub
 - collapsible toc
 - metadata view
+- make only text section scrollable
+- remember position inside section
+- make window size resolution-dependent
 
 ### v0.x
 - scrubbing controls; hotkeys
@@ -29,20 +31,3 @@ v parametrize toc/content paths as per specification
 - check support of old versions of specification
 - package for distribution
 - customize font family and size
-
-
-## CHANGELOG
-### v0.4
-- layout skeleton
-- wiring file choose menu
-- unzipping .epub into cache
-
-### v0.3
-view toc + testo prima sezione utile
-
-### v0.2
-view elenco metadati epub
-
-### v0.1
-hello world Electron
-
