@@ -1,4 +1,5 @@
-const showDevTools = false;
+const showDevTools = true;
+//const showDevTools = false;
 
 
 const { app, BrowserWindow, ipcMain, Menu, dialog } = require('electron');
@@ -30,31 +31,31 @@ function createWindow() {
 	if (showDevTools)
 		win.webContents.openDevTools();
 
-	setupMenu(win);
+	setupMenu();
 }
 
 app.on('ready', createWindow);
 
 
-function updateModelText(textPath) {
-	if (!textPath) {
-		textPath = bookState.getValue("lastSeenSection");
+function updateModelText(section) {
+	if (!section) {
+		if (bookState.getValue("lastSeenSection"))
+			section = bookState.getValue("lastSeenSection");
+		else
+			section = {index: 1, url: bookState.getValue("playOrder")[1]};
 	}
 
-	if (!textPath)
-		textPath = bookState.getValue("playOrder")[1];
-
-	parseText(bookState.getValue("contentBasePath") + "/"  + textPath, (text) => {
-		bookState.setValue("lastSeenSection", textPath);
-		win.webContents.send('update-view-text', text);
+	parseText(bookState.getValue("contentBasePath") + "/"  + section.url, (text) => {
+		bookState.setValue("lastSeenSection", section);
+		win.webContents.send('update-view-text', section.url, text);
 	});
 }
 
-ipcMain.on('update-model-text', (event, textPath) => { updateModelText(textPath) });
+ipcMain.on('update-model-text', (event, section) => { updateModelText(section) });
 
 
 
-function setupMenu(win) {
+function setupMenu() {
 	let menu = Menu.buildFromTemplate([
 		{
 			label: 'File',
@@ -87,6 +88,12 @@ function setupMenu(win) {
 			submenu: [
 				{ label: 'Save Bookmark', accelerator: 'Ctrl+D',
 					click() { saveBookmark(); }
+				},
+				{ label: 'Next Section', accelerator: 'Ctrl+PageDown',
+					click() { gotoDelta(+1); }
+				},
+				{ label: 'Previous Section', accelerator: 'Ctrl+PageUp',
+					click() { gotoDelta(-1); }
 				},
 			]
 		}
@@ -203,6 +210,9 @@ function parseEpub(epubDir) {
 
 				win.webContents.send('update-view-toc', toc);
 			});
+
+			win.webContents.send('update-view-bookmarks', bookState.getValue("bookmarks"));
+
 		});
 	});
 }
@@ -254,7 +264,8 @@ function parseToc(tocFile, callback) {
 
 			section = {
 				title: navPoint.navLabel.text, 
-				url: navPoint.content.src, 
+				url: navPoint.content.src,
+				index: parseInt(navPoint.playOrder),
 				subsections: [],
 			};
 
@@ -273,6 +284,7 @@ function parseToc(tocFile, callback) {
 				section.subsections.push({
 					title: navPoint2.navLabel.text, 
 					url: navPoint2.content.src,
+					index: parseInt(navPoint2.playOrder),
 					subsections: [],
 				});
 			}
@@ -303,5 +315,20 @@ function parseText(textFile, callback) {
 
 
 function saveBookmark() {
-	bookState.appendValue("bookmarks", bookState.getValue("lastSeenSection"));
+	let newBM = bookState.getValue("lastSeenSection");
+
+	bookState.addSortedValue("bookmarks", newBM);
+	win.webContents.send('update-view-bookmarks', bookState.getValue("bookmarks"));
+}
+
+function gotoDelta(delta) {
+	let lastSeen = bookState.getValue("lastSeenSection");
+	let playOrder = bookState.getValue("playOrder");
+
+	let nextIndex = lastSeen.index + delta;
+	let nextUrl = playOrder[nextIndex];
+	if (nextUrl)
+		updateModelText({ index: nextIndex, url: nextUrl });
+	else
+		console.log("Reached the beginning/end of the book");
 }

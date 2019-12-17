@@ -1,21 +1,26 @@
 ## MILESTONES
 ## v0.6
-- navigate to next/previous section
-- navigate to bookmark
+- open last viewed book by default
+
 - collapsible toc
 - metadata view
-- make only text section scrollable
-- remember position inside section
+- make each panel scroll independently
 - make window size resolution-dependent
+
 - manage io errs
+- remember position inside section
+
 
 ## v0.x
+- delete bookmark
 - scrubbing controls
 - check available epub readers for ideas
 - try out different examples of epub
 - finalize layout
 - support media (embedded images)
 - "library" view
+- make more robust with empty document
+- open file as command line argument
 
 ## v0.xx
 - understand xml namespaces

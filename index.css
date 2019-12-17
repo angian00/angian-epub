@@ -12,9 +12,16 @@ h1 {
 	display: flex;
 }
 
-#tocContainer {
-	/* width: 20%; */
+#sidebarContainer {
 	width: 30%;
+}
+
+#bookmarkContainer {
+	border: 1px solid darkGrey;
+	padding: 20px;
+}
+
+#tocContainer {
 	border: 1px solid darkGrey;
 	padding: 20px;
 }
@@ -24,6 +31,9 @@ h1 {
 	width: 100%;
 }
 
+#tocContainer .current {
+	background-color: red;
+}
 
 #textContainer {
 	width: 70%;

@@ -2,14 +2,6 @@ const { app } = require('electron');
 const fs = require('fs-extra');
 
 
-function genUuidv4() {
-	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-		return v.toString(16);
-	});
-}
-
-
 class BookState {
 	constructor(bookId) {
 		this.data = {};
@@ -30,11 +22,18 @@ class BookState {
 		this.persist();
 	}
 
-	appendValue(propName, propValue) {
-		if (!this.data[propName]) 
-			this.data[propName] = [];
-		this.data[propName].push(propValue);
-		
+	addSortedValue(propName, propValue) {
+		let currArr = this.data[propName];
+		if (!currArr)
+			currArr = [];
+
+		currArr.push(propValue);
+		currArr.sort(function(a, b) {
+			return a.index - b.index;
+		});
+
+		this.data[propName] = currArr;
+
 		this.persist();
 	}
 
@@ -70,6 +69,16 @@ class BookState {
 		}
 	}
 }
+
+
+function genUuidv4() {
+	return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+		var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+		return v.toString(16);
+	});
+}
+
+
 
 exports.genUuidv4 = genUuidv4;
 exports.BookState = BookState;
