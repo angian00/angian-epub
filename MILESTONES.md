@@ -1,22 +1,18 @@
 ## MILESTONES
-## v0.5
-- remember last position
-- working toc links
-- bookmarks (set, navigate to)
-
 ## v0.6
-- try out different examples of epub
+- navigate to next/previous section
+- navigate to bookmark
 - collapsible toc
 - metadata view
 - make only text section scrollable
 - remember position inside section
 - make window size resolution-dependent
 - manage io errs
-- manage already loaded ebooks
 
 ## v0.x
-- scrubbing controls; hotkeys
+- scrubbing controls
 - check available epub readers for ideas
+- try out different examples of epub
 - finalize layout
 - support media (embedded images)
 - "library" view

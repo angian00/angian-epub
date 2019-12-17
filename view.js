@@ -1,6 +1,6 @@
 const { ipcRenderer } = require('electron');
 
-ipcRenderer.on('update-metadata', function(event, metadata) {
+ipcRenderer.on('update-view-metadata', function(event, metadata) {
 	//console.log("update metadata");
 	let container = document.getElementById("metadataContainer");
 
@@ -19,7 +19,7 @@ ipcRenderer.on('update-metadata', function(event, metadata) {
 });
 
 
-ipcRenderer.on('update-toc', function(event, toc) {
+ipcRenderer.on('update-view-toc', function(event, toc) {
 	//console.log("update toc");
 	let container = document.getElementById("tocContainer");
 
@@ -38,10 +38,12 @@ ipcRenderer.on('update-toc', function(event, toc) {
 			}
 		}
 	}
+
+	ipcRenderer.send("update-model-text", null);
 });
 
 
-ipcRenderer.on('update-text', function(event, htmlText) {
+ipcRenderer.on('update-view-text', function(event, htmlText) {
 	//console.log("update text");
 	let container = document.getElementById("textContainer");
 	container.innerHTML = htmlText;
@@ -57,7 +59,7 @@ function linkOrText(text, targetUrl) {
 		elem.appendChild(linkText);  
 		//elem.href = targetUrl;
 		elem.href = "#";
-		elem.onclick = () => {alert("prova")};
+		elem.onclick = () => { ipcRenderer.send('update-model-text', targetUrl); };
 
 	} else {
 		elem = document.createTextNode(text);

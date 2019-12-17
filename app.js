@@ -1,7 +1,7 @@
 const showDevTools = false;
 
 
-const { app, BrowserWindow, Menu, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, dialog } = require('electron');
 
 const fs = require('fs-extra');
 const path = require('path');
@@ -9,13 +9,16 @@ const xml2json = require('xml2json');
 const extractZip = require('extract-zip');
 const jsdom = require("jsdom");
 
-const util = require("./util");
+const { BookState, genUuidv4 } = require("./util");
 
 const containerPath = "META-INF/container.xml";
 
 
+let win = null;
+let bookState = null;
+
 function createWindow() {
-	let win = new BrowserWindow({
+	win = new BrowserWindow({
 		width: 1200,
 		height: 900,
 		webPreferences: {
@@ -31,6 +34,24 @@ function createWindow() {
 }
 
 app.on('ready', createWindow);
+
+
+function updateModelText(textPath) {
+	if (!textPath) {
+		textPath = bookState.getValue("lastSeenSection");
+	}
+
+	if (!textPath)
+		textPath = bookState.getValue("playOrder")[1];
+
+	parseText(bookState.getValue("contentBasePath") + "/"  + textPath, (text) => {
+		bookState.setValue("lastSeenSection", textPath);
+		win.webContents.send('update-view-text', text);
+	});
+}
+
+ipcMain.on('update-model-text', (event, textPath) => { updateModelText(textPath) });
+
 
 
 function setupMenu(win) {
@@ -50,7 +71,7 @@ function setupMenu(win) {
 							],
 						}).then(result => {
 							if ((!result.canceled) && (result.filePaths.length > 0)) {
-								loadEpub(result.filePaths[0], (epubDir) => { parseEpub(epubDir, win) });
+								loadEpub(result.filePaths[0], (epubDir) => { parseEpub(epubDir) });
 							}
 						});
 					}
@@ -59,6 +80,14 @@ function setupMenu(win) {
 				{ type:  'separator' },
 
 				{ label: 'Quit', accelerator: 'Ctrl+Q', click() { app.quit() } }
+			]
+		},
+		{
+			label: 'View',
+			submenu: [
+				{ label: 'Save Bookmark', accelerator: 'Ctrl+D',
+					click() { saveBookmark(); }
+				},
 			]
 		}
 	]);
@@ -84,10 +113,19 @@ function loadEpub(epubPath, callback) {
 			cacheDirNew = app.getPath("userData") + "/epubCache/" + bookId;
 			try {
 				if (fs.existsSync(cacheDirNew)) {
-					//TODO: check for integrity
-					fs.removeSync(cacheDirNew);
+					//TODO: check cacheDirNew for integrity
+					fs.removeSync(cacheDirTmp);
+
+				} else {
+					fs.renameSync(cacheDirTmp, cacheDirNew);
 				}
-				fs.renameSync(cacheDirTmp, cacheDirNew);
+
+				bookState = BookState.load(bookId);
+				if (!bookState) {
+					bookState = new BookState(bookId);
+					bookState.setValue("cacheDir", cacheDirNew);
+				}
+
 				callback(cacheDirNew);
 			} catch (err) {
 				//TODO: manage rename errors
@@ -129,7 +167,7 @@ function getBookId(epubDir) {
 }
 
 
-function parseEpub(epubDir, win) {
+function parseEpub(epubDir) {
 	fs.readFile(epubDir + "/"  + containerPath, function(err, data) {
 		let containerJson = xml2json.toJson(data, {object: true});
 		let rootfile = containerJson.container.rootfiles.rootfile;
@@ -142,11 +180,9 @@ function parseEpub(epubDir, win) {
 			let json = xml2json.toJson(data, {object: true});
 			//console.log(json);
 
-			if (win) {
-				parseMetadata(json.package.metadata, (metadata) => {
-					win.webContents.send('update-metadata', metadata);
-				});
-			}
+			parseMetadata(json.package.metadata, (metadata) => {
+				win.webContents.send('update-view-metadata', metadata);
+			});
 			
 			let epubItems = {};
 			for (let item of json.package.manifest.item) {
@@ -156,18 +192,17 @@ function parseEpub(epubDir, win) {
 
 			let tocId = json.package.spine.toc;
 
-			if (win) {
-				//TODO: handle absolute and relative paths as well
-				let contentBasePath = path.dirname(epubDir + "/" + contentPath);
-				let tocFullPath = contentBasePath + "/"  + epubItems[tocId].href;
-				parseToc(tocFullPath, (toc, playOrder) => {
-					win.webContents.send('update-toc', toc);
+			//TODO: handle absolute and relative paths as well
+			let contentBasePath = path.dirname(epubDir + "/" + contentPath);
+			bookState.setValue("contentBasePath", contentBasePath);
 
-					let textPath = playOrder[1];
-					parseText(contentBasePath + "/"  + textPath, 
-						(text) => { win.webContents.send('update-text', text); });
-				});
-			}	
+			let tocFullPath = contentBasePath + "/"  + epubItems[tocId].href;
+			parseToc(tocFullPath, (toc, playOrder) => {
+				bookState.setValue("toc", toc);
+				bookState.setValue("playOrder", playOrder);
+
+				win.webContents.send('update-view-toc', toc);
+			});
 		});
 	});
 }
@@ -181,7 +216,6 @@ function parseMetadata(origMetadata, callback) {
 			continue;
 
 		let value = origMetadata[tag];
-		//console.log("tag: " + tag + "; value type: " + (typeof value));
 
 		if (tag.startsWith("dc:"))
 			tag = tag.substring(3,);
@@ -212,11 +246,9 @@ function parseToc(tocFile, callback) {
 		let playOrder = {};
 
 		let json = xml2json.toJson(data, {object: true});
-		//console.log(json);
 		let navMap = json.ncx.navMap;
 
 		for (let navPoint of navMap.navPoint) {
-			//console.log("\t" + navPoint.navLabel.text);
 			if (navPoint.playOrder)
 				playOrder[navPoint.playOrder] = navPoint.content.src;
 
@@ -260,10 +292,16 @@ function parseToc(tocFile, callback) {
 
 function parseText(textFile, callback) {
 	fs.readFile(textFile, function(err, data) {
+		//console.log("parseText: " + textFile);
 		const xmlDoc = new jsdom.JSDOM(data.toString());
 
 		let htmlText = xmlDoc.window.document.querySelector("body").innerHTML;
 
 		callback(htmlText);
 	});
+}
+
+
+function saveBookmark() {
+	bookState.appendValue("bookmarks", bookState.getValue("lastSeenSection"));
 }
