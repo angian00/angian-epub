@@ -55,7 +55,9 @@ function linkOrText(text, targetUrl) {
 		elem = document.createElement('a');  
 		let linkText = document.createTextNode(text);
 		elem.appendChild(linkText);  
-		elem.href = targetUrl;
+		//elem.href = targetUrl;
+		elem.href = "#";
+		elem.onclick = () => {alert("prova")};
 
 	} else {
 		elem = document.createTextNode(text);
@@ -63,3 +65,4 @@ function linkOrText(text, targetUrl) {
 
 	return elem;
 }
+

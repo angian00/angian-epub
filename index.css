@@ -14,15 +14,19 @@ h1 {
 
 #tocContainer {
 	/* width: 20%; */
-	flex-grow: 1;
-	min-width: 15%;
-	max-width: 30%;
+	width: 30%;
 	border: 1px solid darkGrey;
 	padding: 20px;
 }
 
+#tocContainer h2 {
+	text-align: center;
+	width: 100%;
+}
+
+
 #textContainer {
-	/* width: 80%; */
+	width: 70%;
 	padding: 20px;
 
 }

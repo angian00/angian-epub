@@ -1,3 +1,6 @@
+const showDevTools = false;
+
+
 const { app, BrowserWindow, Menu, dialog } = require('electron');
 
 const fs = require('fs-extra');
@@ -6,6 +9,7 @@ const xml2json = require('xml2json');
 const extractZip = require('extract-zip');
 const jsdom = require("jsdom");
 
+const util = require("./util");
 
 const containerPath = "META-INF/container.xml";
 
@@ -20,7 +24,8 @@ function createWindow() {
 	});
 
 	win.loadFile('index.html');
-	win.webContents.openDevTools();
+	if (showDevTools)
+		win.webContents.openDevTools();
 
 	setupMenu(win);
 }
@@ -74,13 +79,14 @@ function loadEpub(epubPath, callback) {
 			//TODO: manage unzip errors
 			console.log(err);
 		} else {
-			//TODO: get epubName from metadata
-			let epubName = "testUnzip";
+			let bookId = getBookId(cacheDirTmp);
 			
-			cacheDirNew = app.getPath("userData") + "/epubCache/" + epubName;
+			cacheDirNew = app.getPath("userData") + "/epubCache/" + bookId;
 			try {
-				if (fs.existsSync(cacheDirNew))
+				if (fs.existsSync(cacheDirNew)) {
+					//TODO: check for integrity
 					fs.removeSync(cacheDirNew);
+				}
 				fs.renameSync(cacheDirTmp, cacheDirNew);
 				callback(cacheDirNew);
 			} catch (err) {
@@ -90,6 +96,36 @@ function loadEpub(epubPath, callback) {
 		}
 	});
 
+}
+
+
+function getBookId(epubDir) {
+	try {
+		let data = fs.readFileSync(epubDir + "/"  + containerPath);
+		let containerJson = xml2json.toJson(data, {object: true});
+		let rootfile = containerJson.container.rootfiles.rootfile;
+		//TODO: handle gracefully multiple-package case
+
+		let contentPath = rootfile["full-path"];
+
+		data = fs.readFileSync(epubDir + "/" + contentPath);
+		let json = xml2json.toJson(data, {object: true});
+		let rawMetadata = json.package.metadata;
+
+		if (rawMetadata["dc:identifier"]) {
+			//TODO: add robustness
+			let bookIdStr = rawMetadata["dc:identifier"]["$t"];
+			return bookIdStr.substring(bookIdStr.lastIndexOf(":") + 1);
+
+		} else {
+			return genUuidv4();
+		}
+
+	} catch (err) {
+		//TODO: manage IO err
+		console.log(err);
+		return null;
+	}
 }
 
 
@@ -106,9 +142,11 @@ function parseEpub(epubDir, win) {
 			let json = xml2json.toJson(data, {object: true});
 			//console.log(json);
 
-			parseMetadata(json.package.metadata, (metadata) => {
-				win.webContents.send('update-metadata', metadata);
-			});
+			if (win) {
+				parseMetadata(json.package.metadata, (metadata) => {
+					win.webContents.send('update-metadata', metadata);
+				});
+			}
 			
 			let epubItems = {};
 			for (let item of json.package.manifest.item) {
@@ -118,21 +156,18 @@ function parseEpub(epubDir, win) {
 
 			let tocId = json.package.spine.toc;
 
-			//TODO: handle absolute and relative paths as well
-			let contentBasePath = path.dirname(epubDir + "/" + contentPath);
-			let tocFullPath = contentBasePath + "/"  + epubItems[tocId].href;
-			parseToc(tocFullPath, (toc, playOrder) => {
-				win.webContents.send('update-toc', toc);
+			if (win) {
+				//TODO: handle absolute and relative paths as well
+				let contentBasePath = path.dirname(epubDir + "/" + contentPath);
+				let tocFullPath = contentBasePath + "/"  + epubItems[tocId].href;
+				parseToc(tocFullPath, (toc, playOrder) => {
+					win.webContents.send('update-toc', toc);
 
-				let textPath = playOrder[1];
-				parseText(contentBasePath + "/"  + textPath, 
-					(text) => { win.webContents.send('update-text', text); });
-
-			});
-
-			//console.log(json.package.spine);
-			//json.package.guide;
-	
+					let textPath = playOrder[1];
+					parseText(contentBasePath + "/"  + textPath, 
+						(text) => { win.webContents.send('update-text', text); });
+				});
+			}	
 		});
 	});
 }
@@ -177,7 +212,7 @@ function parseToc(tocFile, callback) {
 		let playOrder = {};
 
 		let json = xml2json.toJson(data, {object: true});
-		console.log(json);
+		//console.log(json);
 		let navMap = json.ncx.navMap;
 
 		for (let navPoint of navMap.navPoint) {
@@ -203,7 +238,6 @@ function parseToc(tocFile, callback) {
 				if (navPoint2.playOrder)
 					playOrder[navPoint2.playOrder] = navPoint2.content.src;
 
-				//console.log("\t\t" + navPoint2.navLabel.text);
 				section.subsections.push({
 					title: navPoint2.navLabel.text, 
 					url: navPoint2.content.src,
@@ -233,15 +267,3 @@ function parseText(textFile, callback) {
 		callback(htmlText);
 	});
 }
-
-
-/*
-function parseText(htmlFile, callback) {
-	jsdom.JSDOM.fromFile(htmlFile).then((xmlDoc) => {
-		let htmlText = xmlDoc.window.document.querySelector("body").innerHTML;
-		console.log(htmlText);
-
-		callback(htmlText);
-	});
-}
-*/

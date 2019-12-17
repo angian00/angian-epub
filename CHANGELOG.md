@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - this changelog
 - use of git
 - read toc/content paths from META-INF as per .epub specification
+- get epub uuid and rename cache dir accordingly
 
 ### Fixed
 - encoding bug in text view
