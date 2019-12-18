@@ -1,5 +1,5 @@
-const showDevTools = true;
-//const showDevTools = false;
+//const showDevTools = true;
+const showDevTools = false;
 
 
 const { app, BrowserWindow, ipcMain, Menu, dialog } = require('electron');
@@ -10,15 +10,19 @@ const xml2json = require('xml2json');
 const extractZip = require('extract-zip');
 const jsdom = require("jsdom");
 
-const { BookState, genUuidv4 } = require("./util");
+const { GlobalState, BookState, genUuidv4 } = require("./util");
 
 const containerPath = "META-INF/container.xml";
 
 
 let win = null;
+let globalState = GlobalState.load();
 let bookState = null;
 
+
 function createWindow() {
+	setupMenu();
+
 	win = new BrowserWindow({
 		width: 1200,
 		height: 900,
@@ -31,10 +35,17 @@ function createWindow() {
 	if (showDevTools)
 		win.webContents.openDevTools();
 
-	setupMenu();
+	win.webContents.on('did-finish-load', function() {
+		let lastSeenBook = globalState.getValue("lastSeenBook");
+		if (lastSeenBook)
+			parseEpub(lastSeenBook);
+	});
 }
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+	createWindow();
+
+});
 
 
 function updateModelText(section) {
@@ -72,7 +83,7 @@ function setupMenu() {
 							],
 						}).then(result => {
 							if ((!result.canceled) && (result.filePaths.length > 0)) {
-								loadEpub(result.filePaths[0], (epubDir) => { parseEpub(epubDir) });
+								loadEpub(result.filePaths[0], (bookId) => { parseEpub(bookId) });
 							}
 						});
 					}
@@ -86,6 +97,9 @@ function setupMenu() {
 		{
 			label: 'View',
 			submenu: [
+				{ label: 'Toggle Metadata Panel', accelerator: 'Ctrl+M',
+					click() { toggleMetadata(); }
+				},
 				{ label: 'Save Bookmark', accelerator: 'Ctrl+D',
 					click() { saveBookmark(); }
 				},
@@ -127,13 +141,10 @@ function loadEpub(epubPath, callback) {
 					fs.renameSync(cacheDirTmp, cacheDirNew);
 				}
 
-				bookState = BookState.load(bookId);
-				if (!bookState) {
-					bookState = new BookState(bookId);
-					bookState.setValue("cacheDir", cacheDirNew);
-				}
+				globalState.setValue("lastSeenBook", bookId);
 
-				callback(cacheDirNew);
+				callback(bookId);
+
 			} catch (err) {
 				//TODO: manage rename errors
 				console.log(err);
@@ -174,7 +185,14 @@ function getBookId(epubDir) {
 }
 
 
-function parseEpub(epubDir) {
+function parseEpub(bookId) {
+	bookState = BookState.load(bookId);
+	if (!bookState) {
+		bookState = new BookState(bookId);
+	}
+
+	let epubDir = app.getPath("userData") + "/epubCache/" + bookId;
+	
 	fs.readFile(epubDir + "/"  + containerPath, function(err, data) {
 		let containerJson = xml2json.toJson(data, {object: true});
 		let rootfile = containerJson.container.rootfiles.rootfile;
@@ -313,6 +331,10 @@ function parseText(textFile, callback) {
 	});
 }
 
+
+function toggleMetadata() {
+	win.webContents.send('toggle-view-metadata');
+}
 
 function saveBookmark() {
 	let newBM = bookState.getValue("lastSeenSection");

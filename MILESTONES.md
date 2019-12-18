@@ -2,13 +2,15 @@
 ## v0.6
 - open last viewed book by default
 
-- collapsible toc
-- metadata view
+- collapsible sidebar
+- show metadata view
 - make each panel scroll independently
 - make window size resolution-dependent
 
 - manage io errs
 - remember position inside section
+
+- refactoring
 
 
 ## v0.x
@@ -32,3 +34,4 @@
 - check support of old versions of specification
 - package for distribution
 - customize font family and size
+- text search

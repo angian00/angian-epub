@@ -1,29 +1,92 @@
+:root {
+  --main-margin-size: 10px;
+}
+
+html {
+	height: 100%;
+}
+
+body {
+	height: 97%; /* FIXME needed to avoid some vertical wiggling */
+	display: flex;
+	flex-direction: column;
+}
+
 h1 {
 	text-align: center;
 	width: 100%;
 }
 
-#metadataContainer {
-	/* height: 10%; */
+.hidden {
 	display: none;
 }
 
-#bodyContainer {
+
+#metadataContainer {
+	border: 1px solid darkGrey;
+	height: 10%;
+	padding: 5px;
+	margin-bottom: var(--main-margin-size);
+
 	display: flex;
+	flex-wrap: wrap;
+}
+
+#metadataContainer.hidden {
+	display: none;
+}
+
+#metadataContainer div {
+	margin-right: 10px;
+	padding: 5px;
+}
+
+#metadataContainer span:first-child {
+	background-color: lightGrey;
+	border-radius: 5px 0px 0px 5px;
+	padding: 4px 8px 4px 4px;
+}
+
+#metadataContainer span:last-child {
+	background-color: orange;
+	border-radius: 0px 5px 5px 0px;
+	padding: 4px 4px 4px 8px;
+}
+
+
+#bodyContainer {
+	flex-grow: 1;
+	flex-shrink: 1;
+	height: 1px; /* needed for some reason */
+
+	display: flex;
+	flex-direction: row;
 }
 
 #sidebarContainer {
 	width: 30%;
+	margin-right: var(--main-margin-size);
+
+	display: flex;
+	flex-direction: column;	
 }
 
 #bookmarkContainer {
 	border: 1px solid darkGrey;
-	padding: 20px;
+	padding: 10px;
+	margin-bottom: var(--main-margin-size);
+	height: 20%;
+	overflow-y: auto;
 }
 
 #tocContainer {
 	border: 1px solid darkGrey;
-	padding: 20px;
+	padding: 10px;
+
+	flex-shrink: 1;
+	flex-grow: 1;
+	max-width: auto;
+	overflow-y: scroll;
 }
 
 #tocContainer h2 {
@@ -36,7 +99,8 @@ h1 {
 }
 
 #textContainer {
-	width: 70%;
 	padding: 20px;
 
+	flex-grow: 1;
+	overflow-y: scroll;
 }

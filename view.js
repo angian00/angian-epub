@@ -3,17 +3,25 @@ const { listFromSet } = require("./util");
 
 
 ipcRenderer.on('update-view-metadata', function(event, metadata) {
-	//console.log("update metadata");
+	//console.log("update-view-metadata");
 	let container = document.getElementById("metadataContainer");
+	//remove children
+	while (container.firstChild) {
+		container.removeChild(container.firstChild);
+	}
 
-	let list = container.appendChild(document.createElement("dl"));
 	for (let k in metadata) {
-		let dt = document.createElement("dt");
-		dt.appendChild(document.createTextNode(k));
-		list.appendChild(dt);
-		let dd = document.createElement("dd");
-		dd.appendChild(document.createTextNode(metadata[k]));
-		list.appendChild(dd);
+		let d = document.createElement("div");
+		container.appendChild(d);
+
+		let s1 = document.createElement("span");
+		s1.appendChild(document.createTextNode(k));
+		d.appendChild(s1);
+		let s2 = document.createElement("span");
+		s2.appendChild(document.createTextNode(metadata[k]));
+		d.appendChild(s2);
+		
+		container.appendChild(d);
 	}
 
 	if (metadata.title && (metadata.title != ""))
@@ -82,6 +90,12 @@ ipcRenderer.on('update-view-text', function(event, sectionUrl, htmlText) {
 			tocItem.classList.remove("current");
 		}
 	}
+});
+
+
+ipcRenderer.on('toggle-view-metadata', function(event) {
+	let container = document.getElementById("metadataContainer");
+	container.classList.toggle("hidden");
 });
 
 

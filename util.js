@@ -2,6 +2,52 @@ const { app } = require('electron');
 const fs = require('fs-extra');
 
 
+class GlobalState {
+	constructor() {
+		this.data = {};
+	}
+
+	getValue(propName) {
+		return this.data[propName];
+	}
+
+	setValue(propName, propValue) {
+		this.data[propName] = propValue;
+		this.persist();
+	}
+
+	persist() {
+		this.data["lastModified"] = new Date();
+
+		let dirPath = app.getPath("userData") + "/epubLibrary";
+		if (!fs.existsSync(dirPath)) {
+			fs.mkdirSync(dirPath);
+		}
+
+		let filePath = dirPath + "/_global.json";
+		fs.writeFileSync(filePath, JSON.stringify(this.data, null, 4));
+	}
+
+
+	static load() {
+		let gs = new GlobalState();
+		let filePath = app.getPath("userData") + "/epubLibrary/_global.json";
+		try {
+			let rawData = fs.readFileSync(filePath);
+
+			gs.data = JSON.parse(rawData);
+
+		} catch (err) {
+			console.log("Error loading GlobalState");
+			//console.log(err);
+		}
+
+		return gs;		
+	}
+}
+
+
+
 class BookState {
 	constructor(bookId) {
 		this.data = {};
@@ -27,7 +73,9 @@ class BookState {
 		if (!currArr)
 			currArr = [];
 
-		currArr.push(propValue);
+		if (!currArr.includes(propValue))
+			currArr.push(propValue);
+		
 		currArr.sort(function(a, b) {
 			return a.index - b.index;
 		});
@@ -63,8 +111,8 @@ class BookState {
 		
 		} catch (err) {
 			//TODO: handle better
-			console.log("Error loading book: " + bookId);
-			console.log(err);
+			console.log("Error loading book state for: " + bookId);
+			//console.log(err);
 			return null;
 		}
 	}
@@ -80,5 +128,6 @@ function genUuidv4() {
 
 
 
-exports.genUuidv4 = genUuidv4;
+exports.GlobalState = GlobalState;
 exports.BookState = BookState;
+exports.genUuidv4 = genUuidv4;
