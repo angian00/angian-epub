@@ -2,7 +2,7 @@
 const showDevTools = false;
 
 
-const { app, BrowserWindow, ipcMain, Menu, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, screen, dialog } = require('electron');
 
 const fs = require('fs-extra');
 const path = require('path');
@@ -14,6 +14,7 @@ const { GlobalState, BookState, genUuidv4 } = require("./util");
 
 const containerPath = "META-INF/container.xml";
 
+const winScaleFactor = 0.8; //percentage of screen size
 
 let win = null;
 let globalState = GlobalState.load();
@@ -23,9 +24,11 @@ let bookState = null;
 function createWindow() {
 	setupMenu();
 
+	const screenRect = screen.getPrimaryDisplay().bounds;
+
 	win = new BrowserWindow({
-		width: 1200,
-		height: 900,
+		width: winScaleFactor * screenRect.width,
+		height: winScaleFactor * screenRect.height,
 		webPreferences: {
 			nodeIntegration: true
 		}

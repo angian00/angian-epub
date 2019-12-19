@@ -1,11 +1,5 @@
 ## MILESTONES
 ## v0.6
-- open last viewed book by default
-
-- collapsible sidebar
-- show metadata view
-- make each panel scroll independently
-- make window size resolution-dependent
 
 - manage io errs
 - remember position inside section

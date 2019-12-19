@@ -13,6 +13,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - show (toggable) metadata view
 - make each panel scroll independently
 - make all secondary views hideable
+- make window size resolution-dependent
+
 
 ### Fixed
 - Duplicate bookmarks
