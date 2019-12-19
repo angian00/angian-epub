@@ -67,8 +67,6 @@ ipcRenderer.on('update-view-toc', function(event, toc) {
 			}
 		}
 	}
-
-	ipcRenderer.send("update-model-text", null);
 });
 
 

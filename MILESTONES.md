@@ -1,22 +1,26 @@
 ## MILESTONES
+
 ## v0.6
-
 - manage io errs
-- remember position inside section
+- util.js refactoring:
+	- extract state
+- bugfixing when no state is present
 
-- refactoring
 
-
-## v0.x
-- delete bookmark
-- scrubbing controls
+## v0.7
 - check available epub readers for ideas
 - try out different examples of epub
 - finalize layout
-- support media (embedded images)
 - "library" view
-- make more robust with empty document
 - open file as command line argument
+- delete bookmark
+- remember position inside section
+
+## v0.x
+- scrubbing controls
+- support media (embedded images)
+- embed complete styled html for text view
+
 
 ## v0.xx
 - understand xml namespaces

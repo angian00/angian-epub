@@ -8,16 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Added
 - navigate to next/previous section
 - navigate to bookmark
-- highlight current section in toc
+- highlighted current section in toc
 - open last viewed book by default
 - show (toggable) metadata view
-- make each panel scroll independently
-- make all secondary views hideable
-- make window size resolution-dependent
+- made each panel scroll independently
+- made all secondary views hideable
+- made window size resolution-dependent
 
+### Changed
+- app.js refactoring:
+	- extracted parser
 
 ### Fixed
 - Duplicate bookmarks
+
 
 ## [0.5]
 ### Added
