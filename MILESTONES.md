@@ -1,10 +1,10 @@
 ## MILESTONES
 
 ## v0.6
-- manage io errs
+- feedback on io errors
 - util.js refactoring:
 	- extract state
-- bugfixing when no state is present
+- bugfixing: error when no state is present (initial run)
 
 
 ## v0.7

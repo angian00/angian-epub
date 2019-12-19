@@ -5,7 +5,7 @@ const path = require('path');
 const xml2json = require('xml2json');
 const extractZip = require('extract-zip');
 
-const { GlobalState, BookState } = require("./util");
+const { GlobalState, BookState } = require("./state");
 const parser = require("./parser");
 
 
