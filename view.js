@@ -98,6 +98,16 @@ ipcRenderer.on('toggle-view-metadata', function(event) {
 	container.classList.toggle("hidden");
 });
 
+ipcRenderer.on('toggle-view-bookmarks', function(event) {
+	let container = document.getElementById("bookmarkContainer");
+	container.classList.toggle("hidden");
+});
+
+ipcRenderer.on('toggle-view-toc', function(event) {
+	let container = document.getElementById("tocContainer");
+	container.classList.toggle("hidden");
+});
+
 
 function linkOrText(text, section) {
 	let elem = null;

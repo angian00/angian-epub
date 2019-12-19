@@ -97,8 +97,14 @@ function setupMenu() {
 		{
 			label: 'View',
 			submenu: [
-				{ label: 'Toggle Metadata Panel', accelerator: 'Ctrl+M',
+				{ label: 'Toggle Metadata View', accelerator: 'Ctrl+M',
 					click() { toggleMetadata(); }
+				},
+				{ label: 'Toggle Bookmarks View', accelerator: 'Ctrl+B',
+					click() { toggleBookmarks(); }
+				},
+				{ label: 'Toggle Table of Contents', accelerator: 'Ctrl+T',
+					click() { toggleToc(); }
 				},
 				{ label: 'Save Bookmark', accelerator: 'Ctrl+D',
 					click() { saveBookmark(); }
@@ -335,6 +341,15 @@ function parseText(textFile, callback) {
 function toggleMetadata() {
 	win.webContents.send('toggle-view-metadata');
 }
+
+function toggleBookmarks() {
+	win.webContents.send('toggle-view-bookmarks');
+}
+
+function toggleToc() {
+	win.webContents.send('toggle-view-toc');
+}
+
 
 function saveBookmark() {
 	let newBM = bookState.getValue("lastSeenSection");

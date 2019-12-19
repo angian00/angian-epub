@@ -12,6 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - open last viewed book by default
 - show (toggable) metadata view
 - make each panel scroll independently
+- make all secondary views hideable
 
 ### Fixed
 - Duplicate bookmarks
