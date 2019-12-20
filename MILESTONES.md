@@ -2,8 +2,6 @@
 
 ## v0.6
 - feedback on io errors
-- util.js refactoring:
-	- extract state
 - bugfixing: error when no state is present (initial run)
 
 
